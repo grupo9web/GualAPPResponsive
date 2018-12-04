@@ -1,3 +1,61 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////       Preguntarle a Palacios             ////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  - Tema powerups: Ahora mismo se generan así: Se genera uno al principio y cuando se mueven las plataformas se recoloco,
+//    al pilallarlo, se saca un random que selecciona el siguiente tipo de powerup que saldrá. Pero no se como hacer para que no salga 
+//    otro powerup hasta que no se haya acabado el efecto del activo.
+//  - Cuando subes de nivel, la primera vez que aparece la pantalla de level up se bugea y no se porqué.
+//  - La velocidad de la piedra sigue turbia.
+//  - Preguntarle el tema del responsiv y enseádle la pagina web para que os diga a ver si necesita algo más.
+//  - Que el audio no se reinicio mientra estés navegando por los menus.
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////       Preguntar        ////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 var loop, controller;
 
 var bCanvas = document.getElementById("lienzo");
@@ -129,7 +187,7 @@ var audio = document.getElementById('cancion_fondo');
  *
  * */
 var curretStateId = 0;
-
+var playing = false;
 
 const gameStates = {
     currentState: undefined,
@@ -145,6 +203,7 @@ const gameStates = {
         container.style.display = "initial";
         menu.style.display = "none"
         curretStateId = 1;
+        playing = true;
         if (!firstRun) reset();
         firstRun = false;
     },
@@ -167,6 +226,7 @@ const gameStates = {
 
     },
     menuSetup() {
+        playing = false;
         drawMenu();
         curretStateId = 0;
         gameStates.currentState = gameStates.menu();
@@ -188,7 +248,7 @@ const gameStates = {
 
         container.style.display = "none";
         menu.style.display = "initial"
-
+        playing = false;
         gameStates.currentState = gameStates.showGameOver();
         gameStates.currentState;
     },
@@ -260,9 +320,9 @@ function drawScores() {
 
     var img = new Image();
     if (languajeSelected === 1) {
-        img.src = "Assets/AA_Menu_Ranking.png"
+        img.src = "Assets/AA_Menu_Ranking_Ing.png"
     } else if (languajeSelected === 0) {
-        img.src = "Assets/AA_Menu_Ranking.png"
+        img.src = "Assets/AA_Menu_Ranking_Esp.png"
     }
 
 
@@ -401,6 +461,7 @@ function mouseCliked(e) {
         gameStates.currentState;
     }
     if (botonBackMenu.checkClicked() && curretStateId === 5) {
+        playing = false;
         gameStates.currentState = gameStates.menuSetup();
         gameStates.currentState;
     }
@@ -724,7 +785,6 @@ function getMobileOperatingSystem() {
     }
 
     if (/android/i.test(userAgent)) {
-        window.alert("Esto es Andorid PUTAaaa: " + android);
         android = true;
         window.alert("2: " + android);
 
@@ -785,109 +845,110 @@ function pintaPlataformas() {
 
 
 function gestionColisiones() {
-    for (var i = 0; i < plataformas.length; i++) {
-        var auxPlat = plataformas[i];
-        if (player.y_vel > 0 && (player.x + 15 < auxPlat.x + auxPlat.ancho) && (player.x + player.ancho -
-                15 > auxPlat.x) &&
-            (player.y + player.alto > auxPlat.y) && (player.y + player.alto < auxPlat.y + auxPlat.alto)) {
-            if (!auxPlat.saltado) {
-                if (doubleJump) {
-                    player.y_vel = 2 * vy;
-                    jumpCounter--;
-                } else player.y_vel = vy;
-            }
-
-            if (auxPlat.type == 2) {
-                plataformas[i].saltado = true;
-            }
-
-            if (!auxPlat.puntuado) {
-                if (!player.isDead) {
-                    score += 10;
+    if(playing) {
+        for (var i = 0; i < plataformas.length; i++) {
+            var auxPlat = plataformas[i];
+            if (player.y_vel > 0 && (player.x + 15 < auxPlat.x + auxPlat.ancho) && (player.x + player.ancho -
+                    15 > auxPlat.x) &&
+                (player.y + player.alto > auxPlat.y) && (player.y + player.alto < auxPlat.y + auxPlat.alto)) {
+                if (!auxPlat.saltado) {
+                    if (doubleJump) {
+                        player.y_vel = 2 * vy;
+                        jumpCounter--;
+                    } else player.y_vel = vy;
                 }
-                plataformas[i].puntuado = true;
+
+                if (auxPlat.type == 2) {
+                    plataformas[i].saltado = true;
+                }
+
+                if (!auxPlat.puntuado) {
+                    if (!player.isDead) {
+                        score += 10;
+                    }
+                    plataformas[i].puntuado = true;
+                }
+
+                if (jumpCounter == 0) {
+                    doubleJump = false;
+                    jumpCounter = 3;
+                    player.spriteState = 0;
+                    specialSprites = false;
+                    isPowerUp = false;
+                }
+
             }
 
-            if (jumpCounter == 0) {
-                doubleJump = false;
-                jumpCounter = 3;
-                player.spriteState = 0;
-                specialSprites = false;
-                isPowerUp = false;
-            }
+            player.saltado = true;
 
-        }
+            //Colisiones con los power ups
+            if (player.y_vel > 0 && powerup.x > player.x && (powerup.x + powerup.ancho) < (player.x + player.ancho) &&
+                (powerup.y > player.y) && (powerup.y + powerup.alto < player.y + player.alto)
+            ) {
 
-        player.saltado = true;
+                if (powerup.type == 0 && !isPowerUp) {
+                    player.y_vel = -20;
+                    gravity = 0.1;
 
-        //Colisiones con los power ups
-        if (player.y_vel > 0 && powerup.x > player.x && (powerup.x + powerup.ancho) < (player.x + player.ancho) &&
-            (powerup.y > player.y) && (powerup.y + powerup.alto < player.y + player.alto)
-        ) {
-
-            if (powerup.type == 0 && !isPowerUp) {
-                player.y_vel = -20;
-                gravity = 0.1;
-
-                dragonSprite.src = "pu2.png";
+                    dragonSprite.src = "pu2.png";
 
 
-                player.spriteState = 3;
+                    player.spriteState = 3;
 
-                specialSprites = true;
-                isPowerUp = true;
+                    specialSprites = true;
+                    isPowerUp = true;
 
-                if (!player.isDead) score += 50;
+                    if (!player.isDead) score += 50;
 
-                //Intervalo para el PU
-                function intervalTrigger() {
-                    return window.setInterval(function () {
-                        puType = Math.round(Math.random());
-                        gravity = 0.2;
-                        dragonSprite.src = "pu1.png";
+                    //Intervalo para el PU
+                    function intervalTrigger() {
+                        return window.setInterval(function () {
+                            puType = Math.round(Math.random());
+                            gravity = 0.2;
+                            dragonSprite.src = "pu1.png";
 
-                        window.clearInterval(id);
-                    }, 800);
-                };
+                            window.clearInterval(id);
+                        }, 800);
+                    };
 
-                function spriteChanger() {
-                    return window.setInterval(function () {
-                        player.spriteState = 0;
-                        isPowerUp = false;
-                        specialSprites = false;
-                        window.clearInterval(id2);
-                    }, 1500);
-                };
-                var id = intervalTrigger();
-                var id2 = spriteChanger();
-
-
-
-            } else if (powerup.type == 1 && !isPowerUp) {
-
-                powerup2.src = "pu2.png";
-
-                doubleJump = true;
-
-                player.spriteState = 4;
-
-                specialSprites = true;
-                isPowerUp = true;
-
-                if (!player.isDead) score += 50;
-
-                //Intervalo para el PU
-                function intervalTrigger() {
-                    return window.setInterval(function () {
-                        puType = Math.round(Math.random());
-                        powerup2.src = "purplePowerup.png";
-
-                        window.clearInterval(id);
-                    }, 800);
-                };
-                var id = intervalTrigger();
+                    function spriteChanger() {
+                        return window.setInterval(function () {
+                            player.spriteState = 0;
+                            isPowerUp = false;
+                            specialSprites = false;
+                            window.clearInterval(id2);
+                        }, 1500);
+                    };
+                    var id = intervalTrigger();
+                    var id2 = spriteChanger();
 
 
+                } else if (powerup.type == 1 && !isPowerUp) {
+
+                    powerup2.src = "pu2.png";
+
+                    doubleJump = true;
+
+                    player.spriteState = 4;
+
+                    specialSprites = true;
+                    isPowerUp = true;
+
+                    if (!player.isDead) score += 50;
+
+                    //Intervalo para el PU
+                    function intervalTrigger() {
+                        return window.setInterval(function () {
+                            puType = Math.round(Math.random());
+                            powerup2.src = "purplePowerup.png";
+
+                            window.clearInterval(id);
+                        }, 800);
+                    };
+                    var id = intervalTrigger();
+
+
+                }
             }
         }
     }
@@ -926,9 +987,10 @@ function gameOver() {
 
     player.isDead = "fifty";
 
-
-    gameStates.currentState = gameStates.gameOver();
-    gameStates.currentState;
+    if(playing) {
+        gameStates.currentState = gameStates.gameOver();
+        gameStates.currentState;
+    }
 
 }
 
@@ -993,120 +1055,116 @@ controller = {
 
         var key_state = (event.type == "keydown") ? true : false;
         //window.alert("asas");
+        if(playing) {
+            switch (event.keyCode) {
 
-        switch (event.keyCode) {
+                case 37: //Flecha izquierda
+                    controller.left = key_state;
+                    break;
+                case 38: //Flecha derecha
+                    controller.up = key_state;
+                    break;
+                case 39: //Flecha de salto.
+                    controller.right = key_state;
+                    break;
 
-            case 37: //Flecha izquierda
-                controller.left = key_state;
-                break;
-            case 38: //Flecha derecha
-                controller.up = key_state;
-                break;
-            case 39: //Flecha de salto.
-                controller.right = key_state;
-                break;
-
+            }
         }
-
     }
 };
 
 loop = function () {
 
-    // console.log(puType);
+  if(playing) {
+      // console.log(puType);
 
-    //Gestión de la velocidad y de los sprites:
+      //Gestión de la velocidad y de los sprites:
 
-    if (controller.left || androidIzquierda && !specialSprites) {
-        if (!isPowerUp) player.spriteState = 1;
-        player.x_vel -= vx;
-    } else if (controller.right || androidDerecha && !specialSprites) {
-        if (!isPowerUp) player.spriteState = 2;
-        player.x_vel += vx;
-    } else if (!specialSprites) {
-        if (!isPowerUp) player.spriteState = 0;
-    } else {
-        androidDerecha = false;
-        androidIzquierda = false;
-    }
-
-
-
-    //Gestión del movimiento del personaje:
-    if (player.y >= (altoBotCanvas / 2) - (player.alto / 2)) {
-        player.y += player.y_vel;
-        player.y_vel += gravity;
-    } else {
-        plataformas.forEach(function (p, i) {
-
-            if (player.y_vel < 0) {
-                p.y -= player.y_vel;
-            }
-
-            if (p.y > altoBotCanvas) {
-                plataformas[i] = new Platform();
-                plataformas[i].y = p.y - altoBotCanvas;
-            }
-
-        });
-
-        player.y_vel += gravity;
-
-        if (player.y_vel >= 0) {
-            player.y += player.y_vel;
-            player.y_vel += gravity;
-        }
-        //powerupAlive = false;
-    }
-
-    plataformas.forEach(function (p, i) {
-        if (p.type == 1) {
-            if (p.x < 0 || p.x + p.ancho > anchoBotCanvas) {
-                p.vx *= -1;
-            }
-            p.x += p.vx;
-        }
-    });
+      if (controller.left || androidIzquierda && !specialSprites) {
+          if (!isPowerUp) player.spriteState = 1;
+          player.x_vel -= vx;
+      } else if (controller.right || androidDerecha && !specialSprites) {
+          if (!isPowerUp) player.spriteState = 2;
+          player.x_vel += vx;
+      } else if (!specialSprites) {
+          if (!isPowerUp) player.spriteState = 0;
+      } else {
+          androidDerecha = false;
+          androidIzquierda = false;
+      }
 
 
+      //Gestión del movimiento del personaje:
+      if (player.y >= (altoBotCanvas / 2) - (player.alto / 2)) {
+          player.y += player.y_vel;
+          player.y_vel += gravity;
+      } else {
+          plataformas.forEach(function (p, i) {
+
+              if (player.y_vel < 0) {
+                  p.y -= player.y_vel;
+              }
+
+              if (p.y > altoBotCanvas) {
+                  plataformas[i] = new Platform();
+                  plataformas[i].y = p.y - altoBotCanvas;
+              }
+
+          });
+
+          player.y_vel += gravity;
+
+          if (player.y_vel >= 0) {
+              player.y += player.y_vel;
+              player.y_vel += gravity;
+          }
+          //powerupAlive = false;
+      }
+
+      plataformas.forEach(function (p, i) {
+          if (p.type == 1) {
+              if (p.x < 0 || p.x + p.ancho > anchoBotCanvas) {
+                  p.vx *= -1;
+              }
+              p.x += p.vx;
+          }
+      });
 
 
+      player.x += player.x_vel;
+
+      player.x_vel *= 0.9; //Eje X
+
+      //Si se sale por la parte izquierda del canvas...
+      if (player.x < -32) {
+          player.x = 520;
+      } else if (player.x > 520) {
+          //Si se sale por laparte derecha...
+          player.x = -32;
+      }
+
+      if (player.y > 580 && player.isDead != "fifty") {
+          player.isDead = "true";
+          //window.alert("ei" + player.isDead);
+      }
+
+      if (player.isDead == "true") gameOver();
+
+      //score++;
+  }
 
 
-
-    player.x += player.x_vel;
-
-    player.x_vel *= 0.9; //Eje X
-
-    //Si se sale por la parte izquierda del canvas...
-    if (player.x < -32) {
-        player.x = 520;
-    } else if (player.x > 520) {
-        //Si se sale por laparte derecha...
-        player.x = -32;
-    }
-
-    if (player.y > 580 && player.isDead != "fifty") {
-        player.isDead = "true";
-        window.alert("ei" + player.isDead);
-    }
-
-    if (player.isDead == "true") gameOver();
-
-    //score++;
+      lienzo.clearRect(0, 0, bCanvas.width, bCanvas.height);
+      ctx.clearRect(0, 0, anchoBotCanvas, altoBotCanvas);
 
 
+      gestionPowerUp();
+      gestionColisiones()
+      pintaPersonaje();
+      enem.drawEnemy();
+      pintaPlataformas();
+      window.requestAnimationFrame(loop);
 
-    lienzo.clearRect(0, 0, bCanvas.width, bCanvas.height);
-    ctx.clearRect(0, 0, anchoBotCanvas, altoBotCanvas);
-
-
-    gestionPowerUp();
-    gestionColisiones()
-    pintaPersonaje();
-    enem.drawEnemy();
-    pintaPlataformas();
-    window.requestAnimationFrame(loop);
 }
 
 
@@ -1122,20 +1180,21 @@ function orientation(event) {
         event.alpha + ", " +
         event.beta + ", " +
         event.gamma;
-    if (event.gamma > 8) {
-        androidDerecha = true;
-    } else {
-        androidDerecha = false;
-    }
-    if (event.gamma < -8) {
-        androidIzquierda = true;
-    } else {
-        androidIzquierda = false;
-    }
-    document.getElementById("debug").innerHTML = string + " <br/> Isq: " + androidIzquierda + " Dcha: " +
-        androidDerecha;
-    lienzo.fillText(Math.round(string), 100, 100);
-
+   if(playing) {
+       if (event.gamma > 8) {
+           androidDerecha = true;
+       } else {
+           androidDerecha = false;
+       }
+       if (event.gamma < -8) {
+           androidIzquierda = true;
+       } else {
+           androidIzquierda = false;
+       }
+      // document.getElementById("debug").innerHTML = string + " <br/> Isq: " + androidIzquierda + " Dcha: " +
+           androidDerecha;
+       //lienzo.fillText(Math.round(string), 100, 100);
+   }
 }
 
 if (window.DeviceOrientationEvent) {
