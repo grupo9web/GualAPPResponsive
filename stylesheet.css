@@ -1,0 +1,102 @@
+html,
+body {
+    
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+img {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 5;
+}
+
+#container {
+
+    text-align: center;
+    position: relative;
+
+    /*
+    position: absolute;
+    width: 800px;
+    height: 600px;
+    left: 55%;
+    top: 20%;
+    margin-left: -300px;
+    /* This is half the width 
+    margin-top: -200px;
+    /* This is half the height */
+}
+
+@font-face {
+    font-family: 'WallApp';
+    src: url('font.ttf');
+}
+
+
+
+.canvas {
+    top: 0;
+    left: 0;
+    background-color: rgb(82, 223, 223);
+}
+
+#topCanvas {
+    position: relative;
+    top: 0;
+    left: 0;
+    background-color: rgb(64, 53, 224);
+    height: 200px;
+    width: 500px;
+    z-index: -1;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 15px 15px 0px 0px;
+    border-radius: 15px 15px 0px 0px;
+}
+
+#lienzo {
+    margin-top: -4px;
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 600px;
+    width: 500px;
+    z-index: -1;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 15px 15px 0px 0px;
+    border-radius: 0px 0px 15px 15px;
+}
+
+#cloud {
+
+    margin-top: -80px;
+    position: relative;
+    width: 500px;
+    height: 125px;
+    z-index: -1;
+}
+
+#menu {
+    margin-top: 50px;
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 900px;
+    width: 500px;
+    z-index: -1;
+    font-family: WallApp;
+    font-size: 100%;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 15px 15px 15px 15px;
+    border-radius: 15px 15px 15px 15px;
+
+}
+
+
+
+.bgimg {
+    background-image: url('wall.png');
+    z-index: 0;
+}

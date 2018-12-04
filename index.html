@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <title> WallApp</title>
+
+<head>
+   <!--Quita el zoom-->
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' />
+
+  <link rel="stylesheet" href="stylesheet.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+  
+</head>
+
+<body background="background.png">
+
+  <div id="container">
+
+    <div id="div1">
+      <canvas class="canvas" id="topCanvas" width="500" height="200"></canvas>
+    </div>
+
+    <div id="div2">
+      <canvas class="canvas" id="cloud" style="background: url('cloud.png')"></canvas>
+
+    </div>
+
+    <div id="div3">
+      <canvas class="canvas" id="lienzo" width="500" height="600"></canvas>
+      <p id="scoreText"></p>
+      <p id="debug"></p>
+    </div>
+
+
+  </div>
+  <img id="sprite" src="arrow.png" style="display:none" />
+  <img id="walker" src="ww.png" style="display:none" />
+
+  <div id="container">
+    <canvas id="menu" width="500" height="900"></canvas>
+    <p id="puntuaciones"></p>
+  </div>
+
+  <audio id="cancion_fondo" loop>
+    <source src="musica/Dueto Rains of Castamere.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+  </audio>
+
+</body>
+
+<script src="WallApp.js"></script>
+
+</html>
